@@ -1,9 +1,9 @@
 class Set_mp:
-    def __init__(self, set_data: {}):
+    def __init__(self, set_data: set):
         self._set_data = set_data
         print(len(self._set_data))
 
-    def _list(self) -> {}:
+    def _list(self) -> set:
         return self._set_data
 
     def _print(self):
