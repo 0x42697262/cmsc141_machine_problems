@@ -4,7 +4,7 @@
     Test Cases: Amount of times creating new two sets.
 """
 
-#from abc import ABC, abstractmethod
+
 class InputFileHandler:
     def __init__(self, filename):
         self._filename = filename
@@ -31,8 +31,24 @@ class _Set:
         for item in self._set_list:
             print(item)
 
+    def _get_type(self):
+        return self._set_type
+
+    # def _init_type(self, value):
+    #     types = {
+    #         1: int,
+    #         2: float,
+    #         3: str,
+    #         4: str,
+    #         5: set,
+    #         6: object
+    #     }
+    #     return types[value]
+
     def insert(self, value):
-        self._set_list.update(value)
+        if not isinstance(value, self._set_type):
+            raise TypeError(f"set item is of only type {self._set_type}")
+        self._set_list.add(value)
     
     def remove(self, value):
         pass
@@ -52,24 +68,63 @@ class _Set:
     def power_set(self):
         pass
 
+
 class _SetTypeCreator:
     """
         This function returns the type of set: (int, double, char, string, set, object)
     """
-    def init_set(self, value: int) -> _Set:
+    def init_set(value: int, value2: int) -> _Set:
         stypes = {
-                        1: _SetInteger
-                        
+                        1: _SetInteger,
+                        2: _SetDouble,
+                        3: _SetChar,
+                        4: _SetString,
+                        5: _SetSets,
+                        6: _SetObject                        
                         }
         return stypes[value]()
 
 class _SetInteger(_Set):
     def __init__(self):
+        self._set_type = int
         self._set_list = set()
-        
-    def _set_type(self) -> int:
-        return int
 
+class _SetDouble(_Set):
+    def __init__(self):
+        self._set_type = float
+        self._set_list = set()
+
+class _SetChar(_Set):
+    def __init__(self):
+        self._set_type = str
+        self._set_list = set()
+    
+    def insert(self, value: str):
+        if not isinstance(value, self._set_type):
+            raise TypeError(f"set item is of only type {self._set_type}")
+        self._set_list.add(value[0])
+
+class _SetString(_Set):
+    def __init__(self):
+        self._set_type = str
+        self._set_list = set()
+
+class _SetSets(_Set):
+    def __init__(self):
+        self._set_type = set
+        self._set_list = set()
+    
+
+    def insert(self, set_value: set):
+        if not isinstance(set_value, self._set_type):
+            raise TypeError(f"set item is of only type {self._set_type}")
+        self._set_list.update(set_value)
+
+
+class _SetObject(_Set):
+    def __init__(self):
+        self._set_type = object
+        self._set_list = set()
 
 # ----------------------------------------------------------------- #
 class Interface:
@@ -96,14 +151,9 @@ class Interface:
         self._test_file = InputFileHandler(file)
         self._test_file.start_reading()
 
-        # setting default none values
-        self._set1 = None
-        self._set2 = None
 
 
-
-
-    def step_1(self, value):
+    def step_1(self):
         """
             Get the type of set for the elements:
                 1               : int
@@ -113,25 +163,30 @@ class Interface:
                 5               : set
                 6               : object
         """
-        self._set1 = _SetTypeCreator().init_set(value)
-        self._set2 = _SetTypeCreator().init_set(value)
+        value = list(map(str, input().split()))
+        value.append(None)
+        value[0] = int(value[0])
+
+        self._set1 = _SetTypeCreator.init_set(value[0], value[1])
+        self._set2 = _SetTypeCreator.init_set(value[0], value[1])
 
         
-
-
-
 
     def step_2(self):
-        self._set1.insert(list(map(self._set1._set_type(), input("set_items1: ").split())))
-        self._set2.insert(list(map(self._set2._set_type(), input("set_items2: ").split())))
-
+        for item in list(map(self._set1._get_type(), input("set_items1: ").split())):
+            self._set1.insert(item)
+        for item in list(map(self._set2._get_type(), input("set_items2: ").split())):
+            self._set2.insert(item)
 
         
+
+        print(self._set1._list())
+        print(self._set2._list())
         
 
 def main():
     new_test = Interface(input("test_cases: "), "mpa1.in")
-    new_test.step_1(1)
+    new_test.step_1()
     new_test.step_2()
     
     
