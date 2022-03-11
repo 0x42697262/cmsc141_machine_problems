@@ -7,7 +7,7 @@
 #include <vector>
 
 template <class SetType>
-class Set{
+class InputFileHandler{
 private:
     std::vector<std::string> _list;
     std::string _filename;
@@ -15,26 +15,30 @@ private:
 public:
     Set(std::string filename){
         this->_filename = filename;
-        std::cout << this->_filename;
     }
 
     void start_reading(){
         std::ifstream File(this->_filename);
         std::string str;
+        
         while(std::getline(File, str)){
             this->_list.push_back(str);
         }
     }
     
-    void something(){
-        for(int i=0; i<this->_list; i++) std::cout << this->_list[i];
-    
+    void _print(){
+        for(int i=0; i<this->_list.size(); i++) 
+            std::cout << this->_list[i] << std::endl;
+    }
+
+    std::string _get_line(int line){
+        return this->_list.at(line);
     }
     
 };
 
 int main(){
-    Set<int> fuck("shit");
+    
 
     return 0;
 }
