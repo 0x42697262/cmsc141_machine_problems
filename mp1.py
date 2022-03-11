@@ -24,10 +24,6 @@ class InputFileHandler:
 
 
 class _Set:
-    def __init__(self):
-        self._set_type = None
-        self._set_list = {}
-
     def _list(self) -> set:
         return self._set_list
 
@@ -36,7 +32,7 @@ class _Set:
             print(item)
 
     def insert(self, value):
-        pass
+        self._set_list.update(value)
     
     def remove(self, value):
         pass
@@ -58,24 +54,34 @@ class _Set:
 
 class _SetTypeCreator:
     """
-        This class returns the type of set
+        This function returns the type of set: (int, double, char, string, set, object)
     """
-    def __init__(self, set_type: int) -> _Set:
-        self._types = {
+    def init_set(self, value: int) -> _Set:
+        stypes = {
                         1: _SetInteger
                         
                         }
-        return self._types[set_type]
+        return stypes[value]()
 
 class _SetInteger(_Set):
     def __init__(self):
-        self._set_type = int
-        self._set_list = {}
+        self._set_list = set()
+        
+    def _set_type(self) -> int:
+        return int
 
+
+# ----------------------------------------------------------------- #
 class Interface:
     """
         This class should be handling how we navigate through the sets. By creating, modifying,
         removing items from a set. An API perhaps?
+
+        Flow:
+            1) Initialize the sets - test cases
+            2) Choose the set type for the each test case - execute _SetTypeCreator($type$)
+                -> must strictly only use the specified set type for the created set
+            3) Fill the two sets with data (based on the $type$ of set you specified.)
     """
 
     def __init__(self, tests: int, file):
@@ -94,6 +100,9 @@ class Interface:
         self._set1 = None
         self._set2 = None
 
+
+
+
     def step_1(self, value):
         """
             Get the type of set for the elements:
@@ -104,17 +113,27 @@ class Interface:
                 5               : set
                 6               : object
         """
-        self._set1 = _Set(value)
-        self._set2 = _Set(value)
-    
-    def step_2(self, value):
-        pass
+        self._set1 = _SetTypeCreator().init_set(value)
+        self._set2 = _SetTypeCreator().init_set(value)
+
+        
+
+
+
+
+    def step_2(self):
+        self._set1.insert(list(map(self._set1._set_type(), input("set_items1: ").split())))
+        self._set2.insert(list(map(self._set2._set_type(), input("set_items2: ").split())))
+
+
         
         
 
 def main():
-    #new_test = Interface(input("test_cases: "), "mpa1.in")
-    _SetInteger()
+    new_test = Interface(input("test_cases: "), "mpa1.in")
+    new_test.step_1(1)
+    new_test.step_2()
+    
     
 
 
