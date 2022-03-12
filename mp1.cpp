@@ -53,6 +53,9 @@ public:
         return this->_list.at(line-1);   // we don't start at line 0, we start at line 1
     }
     
+    int _get_length(){
+        return this->_list.size();
+    }
 };
 
 template <class SetType>
@@ -136,6 +139,7 @@ private:
     int _type;
     int _test_cases;
     int _case_id;           // we use this to keep track of which case we are at
+    int _current_line;
 
 public:
     Interface(std::string file){
@@ -145,11 +149,14 @@ public:
         this->_filename = file;
         this->File.set_filename(file);
         this->File.start_reading();
-        this->_test_cases = std::stoi(File._get_line(1));
+        this->_current_line = 1;
+        this->_test_cases = std::stoi(File._get_line( this->_current_line ));
         this->_case_id = 0;
-
+        
+        this->_current_line++; // now at line 2
         this->step_1();
     }
+
 
     void step_1(){
         /*
@@ -163,11 +170,12 @@ public:
         */
 
        if (this->_case_id < this->_test_cases){
-            if (File._get_line(2).length() == 1)
-                this->_type = std::stoi(File._get_line(2));
+            std::vector<std::string> v_str;
+            
+            if (File._get_line( this->_current_line ).length() == 1)
+                this->_type = std::stoi(File._get_line( this->_current_line ));
             else {
-                std::istringstream sub_str(File._get_line(2));
-                std::vector<std::string> v_str;
+                std::istringstream sub_str(File._get_line( this->_current_line ));
 
                 std::string temp;
                 while (sub_str >> temp)
@@ -175,6 +183,7 @@ public:
 
                 this->_type = std::stoi(v_str.at(0)); // copy the set type
             }
+            this->_current_line++; // now at line 3
 
             /*
 
@@ -202,7 +211,7 @@ public:
                     break;
                 
                 case 5:
-                    this->s_set();                
+                    this->s_set(std::stoi(v_str.at(1)));                
                     break;
                 
                 case 6:
@@ -214,52 +223,115 @@ public:
                     break;
             }
 
+            /*
+                END THE CODE HERE!
+            */
+
         }
 
         
     }
     
+    
     void s_int(){
         Set<int> s1;
         Set<int> s2;
 
-
+        this->step_2(&s1, &s2);
     }
 
     void s_double(){
+        Set<double> s1;
+        Set<double> s2;
 
+        this->step_2(&s1, &s2);
     }
 
     void s_char(){
+        Set<char> s1;
+        Set<char> s2;
 
+        this->step_2(&s1, &s2);
     }
 
     void s_string(){
+        Set<std::string> s1;
+        Set<std::string> s2;
 
+        this->step_2(&s1, &s2);
     }
 
-    void s_set(){
+    void s_set(int s_type){
+        /*
+            this part would be a pain in the ass.
+            What if the input of the type was 5 5 ?? then it means we need to get the
+            3rd input.... waht the fuck 
+            okay ignore that.
+        */
 
+        // this->step_2(&s1, &s2);
     }
 
     void s_object(){
+        /*
+            I'll just use Interface as my object ¯\_(ツ)_/¯
+        */
+        Set<Interface> s1;
+        Set<Interface> s2;
 
+        this->step_2(&s1, &s2);
     }
 
-
-
+    
 
 
 
     template<class SetType>
     void step_2(Set<SetType> *set1, Set<SetType> *set2){
         /*
-
-            We do operations on this step, should be simple but this step requires set type.
             We only need a pointer so that we don't need to create a new data, i think.
             And to use this function, we pass it this way: step_2(&s1, &s2);
 
+            lines 3 and 4
+            get the data inputs 
         */
+
+        std::istringstream sub_str(File._get_line( this->_current_line ));
+
+        std::string temp;
+        while (sub_str >> temp)
+            *set1.push_back(temp); 
+        this->_current_line++; // line 4
+
+
+        std::istringstream sub_str(File._get_line( this->_current_line ));
+
+        std::string temp;
+        while (sub_str >> temp)
+            *set2.push_back(temp); 
+        this->_current_line++;  // line 5
+
+        /*
+            i give up, i'm going back to python. STRING EVERYTHING!
+            i realized that i may not be able to convert the strings of the file
+            into the specific types in c++.
+            but with only everything being strings in python, it's... wait damn easier
+            why didn't i do just that. WHY
+        */
+
+        this->step_3(&set1, &set2);
+       
+    }
+
+    template<class SetType>
+    void step_3(Set<SetType> *set1, Set<SetType> *set2){
+        /*
+
+            We do operations on this step, should be simple but this step requires set type.
+
+        */
+
+       
     }
     
 };
