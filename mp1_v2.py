@@ -102,29 +102,33 @@ class Set:
         pass
 
 
+class SetDouble(Set):
+    def insert(self, value):
+        if isinstance(value, self._set_type):
+            value = round(value, 2)
+            self._set_list[str(value)] = value
+
+class SetChar(Set):
+    def insert(self, value):
+        if isinstance(value, self._set_type):
+            self._set_list[str(value[0])] = value[0]
+
+
+
 class Interface:
     def __init__(self, filename: str):
         self._ㄋ = InputFileHandler(filename)
         self._ㄋ.start_reading()
-        self._test_cases = None
-        self._case_id = 0
+        self._test_cases = -1
+        self._case_id = -1
         self._stack = list()
-
-        self._index_stack_cases = list()
-        self._index_stack_operations = list()
 
         self._set1 = None
         self._set2 = None
         self._type = None
 
-        self._current_case = 0 
-
         self._stack_generator()
-        self._create_stack_flow()
-
-    def _create_sets(self):
-        self._set1 = Set
-        self._set2 = Set
+        self.process()
 
     def _stack_generator(self):
         for i in range(self._ㄋ._get_size()):
@@ -135,33 +139,40 @@ class Interface:
                 self._stack.append(line_list[0])
             else:
                 self._stack.append(line_list)
-        self._stack = self._stack[::-1]
-        self._test_cases = self._stack.pop()
 
-    def _create_stack_flow(self):
-        print(self._test_cases)
+        self._stack = self._stack[::-1]
+        self._test_cases = int(self._stack.pop())
+
+    def process(self):
+        while self._case_id < self._test_cases:
+            while bool(self._stack):
+                pass
         
+
+        self._case_id += 1
+
+
 
 def main():
     #ㄏㄢㄋㄚㄏ = Interface("mpa1.in")    
-    ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
+    #ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
     print()
-    X = Set(int)
-    Y = Set(int)
+    X = Set(set)
+    Y = Set(set)
 
-    X.insert(1)
-    X.insert(2)
-    X.insert(3)
+    X.insert({1,2,3})
+    X.insert({7,4,5,6})
+    X.insert({9,8,7})
 
-    Y.insert(3)
-    Y.insert(4)
-    Y.insert(5)
+    Y.insert({9,8,7})
+    Y.insert({9,2,8,7})
+    Y.insert({24,15,5})
 
-    print(X.intersection(Y).get_list())
-    print(X.union(Y).get_list())
-    print(X.difference(Y).get_list())
     #print(X.power_set(Y).get_list())
 
+    print(X.union(Y).get_list())
+    print(X.intersection(Y).get_list())
+    print(X.difference(Y).get_list())
 
 if __name__ == '__main__':
     main()
