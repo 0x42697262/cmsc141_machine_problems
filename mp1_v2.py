@@ -4,6 +4,8 @@
 """
     NO MORE CODE EXPLANATIONS!!! everything will be built around dictionaires and strings A LOT OF STRINGS.
     welcome to 12:14 UTC+8 coding. HAVE FUN!
+
+    03:38 - i am dying help me. i still haven't set the other types.
 """
 
 
@@ -140,18 +142,6 @@ class Interface:
         print(self._test_cases)
         
 
-def sublists(l:[int]) -> [[int]]:
-    #accepts a list of integers and returns all the sublists of the list. Sublists are contiguous chunks of a list (including an empty list and the list itself). [1,2], [2], [], [2,3,4], and [1,2,3,4,5] are sublists of [1,2,3,4,5] but [3,5] and [1,2,3,4,6] are not.
-    subsets:[[int]] = [[]]
-
-    for stage in range(1, l+1):
-        for sub in range(len(subsets)):
-            subsets.append(list(subsets[sub])) # wait so python takes lists as references hence why i needed to use list(x) instead of just x?
-            subsets[sub].append(stage)
-
-    return subsets
-
-
 def main():
     #ㄏㄢㄋㄚㄏ = Interface("mpa1.in")    
     ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
@@ -172,7 +162,6 @@ def main():
     print(X.difference(Y).get_list())
     #print(X.power_set(Y).get_list())
 
-    print(sublists([1,2,3]))
 
 if __name__ == '__main__':
     main()
