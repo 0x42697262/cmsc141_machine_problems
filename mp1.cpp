@@ -115,14 +115,27 @@ class Interface{
         3) we get the X number of operations and do X operation
         4) Repeat 1
     
+
+    In reading the file, the lines may change depending on the size of the test cases and operations.
+    But there are constant lines in a file, like:
+        - # of test cases   : always found at line 1
+        - set type          : found at line 2
+        - set data input    : found at line 3 and 4
+        - # of operations   : found at line 5
+    Then as for the operations input, we can do something like this:
+        - operations input  : found at line 6 until line `6 + ( x - 1 )`
+                              x stands for # of operations
+    
+    The next line would be the next test case with a new type of set
+
 */
 private:
     std::string _filename;
     InputFileHandler File;
 
-    int _test_cases;
     int _type;
-    int _case_id;
+    int _test_cases;
+    int _case_id;           // we use this to keep track of which case we are at
 
 public:
     Interface(std::string file){
@@ -135,29 +148,118 @@ public:
         this->_test_cases = std::stoi(File._get_line(1));
         this->_case_id = 0;
 
-        this->step_0(this->_case_id);
+        this->step_1();
     }
 
-    void step_0(int case_id){
+    void step_1(){
         /*
 
+            We get the set type for each test cases, and we also need to check if
+            we have reached the maximum test cases so that we end our program.
 
+            Example: if there are 4 test cases, we would step from 0 -> 1 -> 2 -> 3
+            then we stop
 
         */
 
+       if (this->_case_id < this->_test_cases){
+            if (File._get_line(2).length() == 1)
+                this->_type = std::stoi(File._get_line(2));
+            else {
+                std::istringstream sub_str(File._get_line(2));
+                std::vector<std::string> v_str;
 
-        if (File._get_line(2).length() == 1)
-            this->_type = std::stoi(File._get_line(2));
-        else {
-            std::istringstream sub_str(File._get_line(2));
-            std::vector<std::string> v_str;
+                std::string temp;
+                while (sub_str >> temp)
+                    v_str.push_back(temp); // this should now have values like [5, 1]
 
-            std::string temp;
-            while (sub_str >> temp)
-                v_str.push_back(temp); // this should now have values like [5, 1]
+                this->_type = std::stoi(v_str.at(0)); // copy the set type
+            }
 
-            this->_type = std::stoi(v_str.at(0)); // copy the set type
+            /*
+
+                Before we proceed to step_2(), we must create the sets, but this is the hard
+                part as there are 6 types of sets.
+                So what we do is simply create 6 functions and proceed there.
+
+            */
+
+           switch (this->_type){
+                case 1:
+                    this->s_int();                
+                    break;
+                
+                case 2:
+                    this->s_double();                
+                    break;
+                
+                case 3:
+                    this->s_char();                
+                    break;
+                
+                case 4:
+                    this->s_string();                
+                    break;
+                
+                case 5:
+                    this->s_set();                
+                    break;
+                
+                case 6:
+                    this->s_object();                
+                    break;
+                
+                default:
+                    std::cout << "An error has occured... I don't know what that is" << std::endl;
+                    break;
+            }
+
         }
+
+        
+    }
+    
+    void s_int(){
+        Set<int> s1;
+        Set<int> s2;
+
+
+    }
+
+    void s_double(){
+
+    }
+
+    void s_char(){
+
+    }
+
+    void s_string(){
+
+    }
+
+    void s_set(){
+
+    }
+
+    void s_object(){
+
+    }
+
+
+
+
+
+
+    template<class SetType>
+    void step_2(Set<SetType> *set1, Set<SetType> *set2){
+        /*
+
+            We do operations on this step, should be simple but this step requires set type.
+            We only need a pointer so that we don't need to create a new data, i think.
+            And to use this function, we pass it this way: step_2(&s1, &s2);
+
+        */
     }
     
 };
