@@ -21,7 +21,12 @@ private:
     std::string _filename;
 
 public:
-    InputFileHandler(std::string filename){
+    InputFileHandler(std::string filename = ""){
+        if ( !filename.empty() )
+            this->_filename = filename;
+    }
+
+    void set_filename(std::string filename){
         this->_filename = filename;
     }
 
@@ -34,6 +39,10 @@ public:
         }
         File.close();
     }
+
+    std::vector<std::string> get_list(){
+        return this->_list;
+    }
     
     void _print(){
         for(int i=0; i<this->_list.size(); i++) 
@@ -41,8 +50,7 @@ public:
     }
 
     std::string _get_line(int line){
-        // return this->_list.at(line-1);   // we don't start at line 0, we start at line 1
-        return this->_list.at(line);        // due to offset, we don't need to subtract 1 anymore
+        return this->_list.at(line-1);   // we don't start at line 0, we start at line 1
     }
     
 };
@@ -58,7 +66,7 @@ public:
             std::cout << *i << std::endl;
     }
 
-    std::set<SetType> _get_type(){
+    std::set<SetType> _get_list(){
         return this->_set_list;
     }
 
@@ -96,61 +104,52 @@ public:
 
 class Interface{
 /*
+
     This class should be handling how we navigate through the sets. By creating, modifying,
     removing items from a set. An API perhaps?
 
     Flow:
-        0) Initialize the sets like test cases and offset for each test cases
+        0) Initialize the sets like test cases
         1) Get the set type
         2) We fill in the two sets with X amount of data
         3) we get the X number of operations and do X operation
         4) Repeat 1
     
-    Check the function calculate_offset() for more info
-
 */
 private:
     std::string _filename;
+    InputFileHandler File;
+
     int _test_cases;
     int _type;
-    std::vector<int> _offset;           // we can't tell which line the next case starts so we take its offset for every case
     int _case_id;
 
 public:
-    int calculate_offset(){
-        // TODO: offset generator for test cases
-        return 0;
+    Interface(std::string file){
+        /*
+            We set the filename and read its contents then get its test cases.
+        */
+        this->_filename = file;
+        this->File.set_filename(file);
+        this->File.start_reading();
+        this->_test_cases = std::stoi(File._get_line(1));
+        this->_case_id = 0;
+
+        this->step_0(this->_case_id);
     }
 
-    Interface(std::string file, int c_id = 0){
+    void step_0(int case_id){
         /*
-            This is step_0 and step_1, we initiate the test cases and count the offset for each test cases.
-        */
-        this->_case_id = c_id;
-        this->_filename = file;
-        InputFileHandler File(this->_filename);
-        File.start_reading();
 
 
-        /*
-            This code below stores the set type based on the id number:
-            1 : int
-            2 : double
-            3 : char
-            4 : string
-            5 : set         ( this a set type ex: [5 1] or [5 3])
-            6 : object
 
-            the id number is not used for the sets but rather to keep track of the input
-            for type 5, an x amount of recursion might occur if the input is [5 5]
         */
 
-        this->_test_cases = std::stoi(File._get_line( 0 + this->_offset.at(this->_case_id) ));
+
         if (File._get_line(2).length() == 1)
-            this->_type = std::stoi(File._get_line(  1 + this->_offset.at(this->_case_id) ));
+            this->_type = std::stoi(File._get_line(2));
         else {
-            // i remember now, it's splitting the two numbers
-            std::istringstream sub_str(File._get_line(  1 + this->_offset.at(this->_case_id) ));
+            std::istringstream sub_str(File._get_line(2));
             std::vector<std::string> v_str;
 
             std::string temp;
@@ -159,67 +158,8 @@ public:
 
             this->_type = std::stoi(v_str.at(0)); // copy the set type
         }
-
-        // okay we proceed to step 2, fill the set with data...
-        this->step_2();
-     }
-
-    void step_2(){
-        // factory method.... design patterns... meh, let's just use switch case
-        switch (this->_type){
-        case 1:
-            this->step_2_int_type();                
-            break;
-        
-        case 2:
-            this->step_2_double_type();                
-            break;
-        
-        case 3:
-            this->step_2_char_type();                
-            break;
-        
-        case 4:
-            this->step_2_string_type();                
-            break;
-        
-        case 5:
-            this->step_2_set_type();                
-            break;
-        
-        case 6:
-            this->step_2_objects_type();                
-            break;
-        
-        default:
-            break;
-        }
-
     }
-
-    void step_2_int_type(){
-
-    }
-
-    void step_2_double_type(){
-
-    }
-
-    void step_2_char_type(){
-
-    }
-
-    void step_2_string_type(){
-
-    }
-
-    void step_2_set_type(){
-
-    }
-
-    void step_2_objects_type(){
-        
-    }
+    
 };
 
 int main(){
