@@ -113,19 +113,17 @@ class SetChar(Set):
         if isinstance(value, self._set_type):
             self._set_list[str(value[0])] = value[0]
 
+class SetSets(Set):
+    def insert(self, value, stype):
+        if isinstance(value, self._set_type):
+            self._set_list[str(value)] = value
 
 
 class Interface:
     def __init__(self, filename: str):
         self._ㄋ = InputFileHandler(filename)
         self._ㄋ.start_reading()
-        self._test_cases = -1
-        self._case_id = -1
         self._stack = list()
-
-        self._set1 = None
-        self._set2 = None
-        self._type = None
 
         self._stack_generator()
         self.process()
@@ -141,38 +139,78 @@ class Interface:
                 self._stack.append(line_list)
 
         self._stack = self._stack[::-1]
-        self._test_cases = int(self._stack.pop())
 
     def process(self):
-        while self._case_id < self._test_cases:
-            while bool(self._stack):
-                pass
-        
+        data = {
+            'test_cases': int(self._stack.pop()),
+            'case_id': 0, 
+            'operations': 0, 
+            'new_case': True
+        }
 
-        self._case_id += 1
+        set_settings = {
+            "set1": None,
+            "set2": None
+        }
 
+        set_types = {
+            1: int,
+            2: float,
+            3: str,
+            4: str,
+            5: str,
+            6: object
+        }
+
+        set_class = {
+            1: Set,
+            2: SetDouble,
+            3: SetChar,
+            4: Set,
+            5: SetSets,
+            6: Set
+        }
+
+        while data['case_id'] < data['test_cases']:
+            if data['new_case'] == True:
+                thingy = self._stack.pop()
+
+                s_type = int(thingy[0])
+                set_settings['set1'] = set_class[s_type](set_types[s_type])
+                set_settings['set2'] = set_class[s_type](set_types[s_type])
+
+                if s_type != 5:
+                    for item in self._stack.pop():
+                        set_settings['set1'].insert(set_types[s_type](item))
+
+                    for item in self._stack.pop():
+                        set_settings['set2'].insert(set_types[s_type](item))
+                else:
+                    for item in self._stack.pop():
+                        set_settings['set1'].insert(set_types[s_type](item), set_types[int(thingy[1])])
+
+                    for item in self._stack.pop():
+                        set_settings['set2'].insert(set_types[s_type](item), set_types[int(thingy[1])])
+
+                data['operations'] = int(self._stack.pop())
+                data['new_case'] = False
+
+            for _ in range(data['operations']):
+                self._stack.pop()
+            
+            data['new_case'] = True
+            data['operations'] = 0
+            data['case_id'] += 1
+
+
+    def operate(self):
+        pass
 
 
 def main():
     #ㄏㄢㄋㄚㄏ = Interface("mpa1.in")    
-    #ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
-    print()
-    X = Set(set)
-    Y = Set(set)
+    ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
 
-    X.insert({1,2,3})
-    X.insert({7,4,5,6})
-    X.insert({9,8,7})
-
-    Y.insert({9,8,7})
-    Y.insert({9,2,8,7})
-    Y.insert({24,15,5})
-
-    #print(X.power_set(Y).get_list())
-
-    print(X.union(Y).get_list())
-    print(X.intersection(Y).get_list())
-    print(X.difference(Y).get_list())
 
 if __name__ == '__main__':
     main()
