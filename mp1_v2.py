@@ -113,10 +113,6 @@ class SetChar(Set):
         if isinstance(value, self._set_type):
             self._set_list[str(value[0])] = value[0]
 
-class SetSets(Set):
-    def insert(self, value, stype):
-        if isinstance(value, self._set_type):
-            self._set_list[str(value)] = value
 
 
 class Interface:
@@ -167,7 +163,7 @@ class Interface:
             2: SetDouble,
             3: SetChar,
             4: Set,
-            5: SetSets,
+            5: Set,
             6: Set
         }
 
@@ -179,24 +175,19 @@ class Interface:
                 set_settings['set1'] = set_class[s_type](set_types[s_type])
                 set_settings['set2'] = set_class[s_type](set_types[s_type])
 
-                if s_type != 5:
-                    for item in self._stack.pop():
-                        set_settings['set1'].insert(set_types[s_type](item))
+                for item in self._stack.pop():
+                    set_settings['set1'].insert(set_types[s_type](item))
 
-                    for item in self._stack.pop():
-                        set_settings['set2'].insert(set_types[s_type](item))
-                else:
-                    for item in self._stack.pop():
-                        set_settings['set1'].insert(set_types[s_type](item), set_types[int(thingy[1])])
-
-                    for item in self._stack.pop():
-                        set_settings['set2'].insert(set_types[s_type](item), set_types[int(thingy[1])])
-
+                for item in self._stack.pop():
+                    set_settings['set2'].insert(set_types[s_type](item))
+            
                 data['operations'] = int(self._stack.pop())
                 data['new_case'] = False
 
             for _ in range(data['operations']):
                 self._stack.pop()
+
+            
             
             data['new_case'] = True
             data['operations'] = 0
