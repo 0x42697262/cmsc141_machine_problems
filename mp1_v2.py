@@ -1,11 +1,7 @@
-
 # source: https://github.com/KrulYuno/cmsc141_machine_problems/blob/master/mp1_v2.py
 
 """
-    NO MORE CODE EXPLANATIONS!!! everything will be built around dictionaires and strings A LOT OF STRINGS.
-    welcome to 12:14 UTC+8 coding. HAVE FUN!
-
-    03:38 - i am dying help me. i still haven't set the other types.
+12/05/22 - I forgot what i was doing here....
 """
 
 
