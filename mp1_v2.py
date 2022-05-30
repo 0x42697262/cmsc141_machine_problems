@@ -1,8 +1,10 @@
 # source: https://github.com/KrulYuno/cmsc141_machine_problems/blob/master/mp1_v2.py
 
 """
-12/05/22 - I forgot what i was doing here....
+12/05/22 - I forgot what i was doing here... I should've documented my code... 
 """
+
+
 
 
 class InputFileHandler:
@@ -196,7 +198,8 @@ class Interface:
 
 def main():
     #ㄏㄢㄋㄚㄏ = Interface("mpa1.in")    
-    ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")    
+    ㄏㄢㄋㄚㄏ = Interface("mp1_test.in")
+    
 
 
 if __name__ == '__main__':
