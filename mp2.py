@@ -1,4 +1,4 @@
-primitive_types = ["int", "char", "float", "double", "void"]
+primitive_types = ["int", "char", "float", "double"]
 
 
 class FileHandler:
@@ -43,26 +43,23 @@ class ProcessInterpreter:
 
     def validate(self):
         while len(self._instructions) != 0:
-            current_syntax = self._instructions.pop()
-
-            if not self.check_init(current_syntax):
-              self._results.append("INVALID SYNTAX")
+            current_syntax = self._instructions.pop() 
+            current_syntax = current_syntax.rstrip() # removes newlines
                 
             if self.check_type(current_syntax) == "FUNCTION":
-                print("function")
+                self._results.append("FUNCTION DECLARATION")
+
             elif self.check_type(current_syntax) == "VARIABLE":
-                print("variable")
+                if self.check_variable(current_syntax):
+                    self._results.append("VALID VARIABLE DECLARATION")
+                else:
+                    self._results.append("INVALID VARIABLE DECLARATION")
 
 
 
-        print(self._results)
+        for _ in self._results:
+            print(_)
 
-    def check_init(self, current_syntax):
-        if ';' in current_syntax:
-            return True
-        else:
-            return False
-    
     def check_type(self, current_syntax):
         if '(' in current_syntax or ')' in current_syntax:
             return "FUNCTION"
@@ -70,8 +67,42 @@ class ProcessInterpreter:
             return "VARIABLE"
 
     def check_variable(self, current_syntax):
-        pass
-        """check variable"""
+        if current_syntax[-1] != ';':
+            return False
+
+        cs_s = current_syntax.replace(';', '')
+        cs_s = cs_s.split(',')
+
+        temp_cs = cs_s.pop(0).split()
+        if temp_cs[0] in primitive_types:
+            for i in range(1, len(temp_cs)):
+                if temp_cs[i] in primitive_types:
+                    return False
+            temp_cs.pop(0)
+            ns = ' '.join(map(str, temp_cs)).replace(" ", '')
+
+        else:
+            return False
+        print(temp_cs)
+        print(ns)
+
+        for i in range(len(cs_s)):
+            temp_cs = cs_s.pop(0).split()
+            for pt in primitive_types:
+                if pt in temp_cs:
+                    return False
+        
+        #print(ns)
+        
+        
+            """
+            this is a fail.
+            """
+        
+
+
+
+        return True
 
 
 
