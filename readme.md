@@ -152,6 +152,19 @@ The MP will stick with primitive types. The types are:
 PIV = ProcessInterpreter("mpa2.in")
 ```
 
+**Functions:**
+
+Checks if the declaration is a *function* or *variable*.
+```python
+def check_type(self, current_syntax)
+```
+
+First checks for primitive types and counts them. If the types are not equal to `1` then it is an invalid variable declaration.
+```python
+def check_variable(self, current_syntax)
+```
+
+
 
 ## FileHander Class
 **Requires 1 positional argument*
@@ -161,3 +174,8 @@ PIV = ProcessInterpreter("mpa2.in")
 file = FileHandler("mpa2.in")
 file.start_reading()
 ```
+
+## Sources Used
+- https://regexr.com/
+- https://stackoverflow.com/questions/38579725/return-string-with-first-match-for-a-regex-handling-case-where-there-is-no-matc
+- 

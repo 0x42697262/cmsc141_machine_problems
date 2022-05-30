@@ -1,5 +1,16 @@
-primitive_types = ["int", "char", "float", "double"]
+# source: https://github.com/KrulYuno/cmsc141_machine_problems/blob/master/mp2.py
 
+import re
+
+primitive_types = ["int", "char", "float", "double"]
+reserved_names = ["void"]
+allowed_var_names = ["_"]
+for _ in range(10):
+    allowed_var_names.append(str(_))
+for _ in range(26):
+    allowed_var_names.append(chr(65+_))
+    allowed_var_names.append(chr(97+_))
+reserved_names += primitive_types
 
 class FileHandler:
     def __init__(self, filename):
@@ -26,6 +37,7 @@ class FileHandler:
 
 
 
+
 class ProcessInterpreter:
     def __init__(self, filename):
         self._file = FileHandler(filename)
@@ -42,15 +54,18 @@ class ProcessInterpreter:
 
 
     def validate(self):
-        while len(self._instructions) != 0:
+        while self._instructions:
             current_syntax = self._instructions.pop() 
             current_syntax = current_syntax.rstrip() # removes newlines
                 
             if self.check_type(current_syntax) == "FUNCTION":
-                self._results.append("FUNCTION DECLARATION")
+                if self.validate_function(current_syntax):
+                    self._results.append("VALID FUNCTION DECLARATION")
+                else:
+                    self._results.append("INVALID FUNCTION DECLARATION")
 
             elif self.check_type(current_syntax) == "VARIABLE":
-                if self.check_variable(current_syntax):
+                if self.validate_variable(current_syntax):
                     self._results.append("VALID VARIABLE DECLARATION")
                 else:
                     self._results.append("INVALID VARIABLE DECLARATION")
@@ -65,6 +80,26 @@ class ProcessInterpreter:
             return "FUNCTION"
         else:
             return "VARIABLE"
+
+    def validate_variable(self, current_syntax):
+        if current_syntax[-1] != ';':
+            return False
+        cs = current_syntax.replace(';', '')
+        cs = cs.split(',')
+        for _ in range(len(cs)):
+            cs[_] = cs[_].split()
+        
+        validator = VariableSyntaxParser(cs)
+        return(validator.result())
+    
+    def validate_function(self, current_syntax):
+        if current_syntax[-1] != ';':
+            return False
+        cs = current_syntax.replace(';', '')
+        validator = FunctionSyntaxParser(cs)
+        
+        return(validator.result())
+
 
     def check_variable(self, current_syntax):
         if current_syntax[-1] != ';':
@@ -104,10 +139,91 @@ class ProcessInterpreter:
 
         return True
 
+class FunctionSyntaxParser:
+    def __init__(self, syntax = list(), *args):
+        self._syntax = syntax
+        self._isValid = True
+
+        self._isValid = self.check_type()
+        print()
+
+    def check_type(self):
+        ptype = re.search("\w+", self._syntax)[0] 
+        if ptype not in primitive_types:
+            return False
+
+        syntax = "".join(self._syntax)
+        syntax = syntax.replace(ptype+" ", '')
+        print(syntax)
+
+        return True
+
+
+    def result(self):
+        return self._isValid
+
+    def print_args(self):
+        for _ in self._syntax:
+            print(_)
+
+class VariableSyntaxParser:
+    def __init__(self, syntax = list(), *args):
+        self._syntax = syntax
+        self._isValid = True
+
+        self._isValid = self.check_type()
+        while self._syntax:
+            self._isValid = self.check_variable()
+            self._syntax.pop(0)
+        
+    def check_type(self):
+        # if self._syntax[0].count("=") > 1:
+        #     return False
+
+        # if self._syntax[0].count("=") == 1:
+        #     temp = self._syntax[0].replace(" ", '')
+        #     print(temp)
+
+        if self._syntax[0][0] not in reserved_names:
+            return False
+        self._syntax[0].pop(0)
+
+    def check_variable(self):
+        for i in range(len(self._syntax)):
+            for word in self._syntax[i]:
+                if word in reserved_names:
+                    return False
+            return self.var_naming(self._syntax[i][0])
+
+
+    def var_naming(self, variable):
+        variable = list(variable)
+        nums = []
+        for _ in range(9):
+            nums.append(str(_))
+        if variable[0] in nums:
+            return False
+
+        for _ in variable:
+            if _ not in allowed_var_names:
+                if _ == "=":
+                    break
+                return False
+
+        return True
+    
+    def result(self):
+        return self._isValid
+
+    def print_args(self):
+        for _ in self._syntax:
+            print(_)
+
 
 
 def main():
     validate = ProcessInterpreter("mpa2.in")
+
     
     
 
