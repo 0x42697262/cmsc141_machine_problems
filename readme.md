@@ -179,3 +179,5 @@ file.start_reading()
 - https://regexr.com/
 - https://stackoverflow.com/questions/38579725/return-string-with-first-match-for-a-regex-handling-case-where-there-is-no-matc
 - https://www.youtube.com/watch?v=rsxjCkvYoAw
+- https://www.youtube.com/watch?v=7nENzjQTxCc
+- https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
