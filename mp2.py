@@ -12,9 +12,7 @@ for _ in range(26):
     allowed_var_names.append(chr(97+_))
 reserved_names += primitive_types
 
-nums = ['=', ';', ',', '(']
-for _ in range(9):
-    nums.append(str(_))
+expected_chars = [';', ',', '=', '(', ' ']
 
 class FileHandler:
     def __init__(self, filename):
@@ -47,8 +45,9 @@ class DeterministicFiniteAutomaton:
         self._type = None
         self._instructions = list()
         self.cases = None
+        self.syntax = None
 
-        self.syn = None ### delete
+        self.syntax2 = None ####
 
         if filename != None:
             self._file = FileHandler(filename)
@@ -65,109 +64,114 @@ class DeterministicFiniteAutomaton:
             self._cases = int(input("Test cases: "))
             for i in range(self._cases):
                 self._instructions.append(input("Instruction: "))
-        
-        self.state_init()
 
-
-    def state_init(self):
         while self._instructions:
-            self.syn = self._instructions.pop(0)
-            self.state_type(self.syn)
-
-    def state_type(self, syntax):
-        if '(' in syntax or ')' in syntax:
-            self._type = "FUNCTION"
-        else:
-            self._type = "VARIABLE"
-
-        ptype = re.search("\w+", syntax)[0]
-        if ptype not in primitive_types:
-            if self._type == "VARIABLE":
-                self.state_invalid()
-                return False
+            self.syntax = list(self._instructions.pop(0))
+            self.syntax2 = ''.join([s for s in self.syntax]) ####
+            if '(' in self.syntax or ')' in self.syntax:
+                self._type = "FUNCTION"
             else:
-                if ptype != "void":
-                    self.state_invalid()
-                    return False
-        
-        syntax = syntax.replace(ptype, '')
-        self.state_space(syntax)
-
-    def state_space(self, syntax):
-        word = re.search("\s+", syntax)[0]
-        if syntax[:len(word)] != word:
-            self.state_invalid()
-            return False
-        
-        syntax = syntax.replace(word, '', 1)
-        self.state_declaration(syntax)
-
-    def state_declaration(self, syntax):
-        if len(syntax) <= 1:
-            temp_syntax = syntax
-        else:
-            temp_syntax = syntax[:-1]
-
-        
-        
-        if temp_syntax[0] in nums:
-            self.state_invalid()
-            return False
-
-        word = re.search("([^\s|,|;|=|(]+)", temp_syntax)[0]
-        for c in word:
-            if c not in allowed_var_names:
-                self.state_invalid()
-                return False
-        syntax = syntax.replace(word, '', 1)
-        
-        self.state_branches(syntax)
-        
-        
-    def state_space_branch(self, syntax):
-        # Expecting a ' ', variable, '(', ')', or ';'
-        word = re.search("\s+", syntax)[0]
-        if syntax[:len(word)] != word:
-            self.state_invalid()
-            return False
-        
-        syntax = syntax.replace(word, '', 1)
-
-        #print(syntax)
-        # do some if else for every branches please
-        self.state_branches(syntax)
-
-    def state_branches(self, syntax):
-        if syntax[0] == ';':
-            syntax = syntax.replace(';', '', 1)
-            if len(syntax) == 0:
-                self.state_valid()
-                return True
-            else:
-                self.state_branches(syntax)
-        if syntax[0] == ' ':
-            self.state_space_branch(syntax)
+                self._type = "VARIABLE"
 
 
+            valid = True
+            while valid:
+                valid = self.state_type()
+                valid = self.state_space(1)
+                valid = self.state_declaration(2)
+                valid = self.state_expectations(3)
 
-    def state_invalid(self):
-        if self._type == "FUNCTION":
-            print(f"INVALID FUNCTION DECLARATION: {self.syn}")
-            #print("INVALID FUNCTION DECLARATION")
+                valid = True
+                self.state_final(valid)
+                break
+            
 
-        if self._type == "VARIABLE":
-            print(f"INVALID VARIABLE DECLARATION: {self.syn}")
-            #print("INVALID VARIABLE DECLARATION")
     
-    def state_valid(self):
-        if self._type == "FUNCTION":
-            print(f"VALID FUNCTION DECLARATION: {self.syn}")
-            #print("VALID FUNCTION DECLARATION")
+    def state_type(self):
+        word = ""
 
-        if self._type == "VARIABLE":
-            print(f"VALID VARIABLE DECLARATION: {self.syn}")
-            #print("VALID VARIABLE DECLARATION")
+        while self.syntax:
+            c = self.syntax.pop(0)
+            if c == ' ':
+                self.syntax.insert(0, c)
+                break
+            word += c
+        
+        if word not in primitive_types:
+            if self._type == "VARIABLE":
+                return False
+            else:
+                if word != "void":
+                    return False
+        return True
 
+
+    def state_space(self, state):
+        word = ""
+        if state == 1:
+            if len(self.syntax) == 0:
+                return False
+
+            while self.syntax:
+                c = self.syntax.pop(0)
+                if c != ' ':
+                    self.syntax.insert(0, c)
+                    break
+                word += c
+            
+
+    def state_declaration(self, state):
+        word = ""
+        if state == 2:
+            if len(self.syntax) == 0:
+                return False
+            
+            self.syntax = ''.join([s for s in self.syntax])
+            word = re.search("([^\s|,|;|=|(]+)", self.syntax)[0]
+            self.syntax = self.syntax.replace(word, '', 1)
+
+            for c in word:
+                if c not in allowed_var_names:
+                    return False
+            if word[0] in str(list(range(9))):
+                return False
+            self.syntax = list(self.syntax)
+
+    def state_expectations(self, state):
+        if len(self.syntax) == 0:
+            return False
+        else:
+            if state == 3:
+                # [';', ' ']
+                if self.syntax[0] == ';':
+                    self.state_semicolon(3)
+
+    
+    def state_semicolon(self, state):
+        if state == 3:
+            if len(self.syntax) == 1:
+                return True
+            if len(self.syntax) > 1:
+                pass
+
+
+    def state_final(self, valid):
+        if valid == False:
+            if self._type == "FUNCTION":
+                print(f"INVALID FUNCTION DECLARATION: {self.syntax2}")
+                #print("INVALID FUNCTION DECLARATION")
+
+            if self._type == "VARIABLE":
+                print(f"INVALID VARIABLE DECLARATION: {self.syntax2}")
+                #print("INVALID VARIABLE DECLARATION")
+        if valid == True:
+            if self._type == "FUNCTION":
+                print(f"VALID FUNCTION DECLARATION: {self.syntax2}")
+                #print("VALID FUNCTION DECLARATION")
+
+            if self._type == "VARIABLE":
+                print(f"VALID VARIABLE DECLARATION: {self.syntax2}")
+                #print("VALID VARIABLE DECLARATION")
 
 
 def main():

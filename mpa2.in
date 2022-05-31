@@ -1,5 +1,5 @@
 57
-int x ; int 1r;
+int 
 int x, y, z = 10;
 double a int function();
 INT function2(void);
