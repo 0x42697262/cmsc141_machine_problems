@@ -12,6 +12,10 @@ for _ in range(26):
     allowed_var_names.append(chr(97+_))
 reserved_names += primitive_types
 
+nums = ['=', ';', ',', '(']
+for _ in range(9):
+    nums.append(str(_))
+
 class FileHandler:
     def __init__(self, filename):
         self._filename = filename
@@ -38,191 +42,137 @@ class FileHandler:
 
 
 
-class ProcessInterpreter:
-    def __init__(self, filename):
-        self._file = FileHandler(filename)
-        self._file.start_reading()
-        if self._file._get_size() == 0:
-            raise ValueError("File length is 0.")
+class DeterministicFiniteAutomaton:
+    def __init__(self, filename = None):
+        self._type = None
+        self._instructions = list()
+        self.cases = None
 
-        self._instructions = self._file.get_me()
-        self._instructions.reverse()
-        self._cases = self._instructions.pop()
-        self._results = list()
+        self.syn = None ### delete
 
-        self.validate()
+        if filename != None:
+            self._file = FileHandler(filename)
+            self._file.start_reading()
+            if self._file._get_size() == 0:
+                raise ValueError("File length is 0.")
+
+            self._instructions = self._file.get_me()
+            self._cases = self._instructions.pop(0)
+
+            for _ in range(len(self._instructions)):
+                self._instructions[_] = self._instructions[_].rstrip()
+        else:
+            self._cases = int(input("Test cases: "))
+            for i in range(self._cases):
+                self._instructions.append(input("Instruction: "))
+        
+        self.state_init()
 
 
-    def validate(self):
+    def state_init(self):
         while self._instructions:
-            current_syntax = self._instructions.pop() 
-            current_syntax = current_syntax.rstrip() # removes newlines
-                
-            if self.check_type(current_syntax) == "FUNCTION":
-                if self.validate_function(current_syntax):
-                    self._results.append("VALID FUNCTION DECLARATION")
-                else:
-                    self._results.append("INVALID FUNCTION DECLARATION")
+            self.syn = self._instructions.pop(0)
+            self.state_type(self.syn)
 
-            elif self.check_type(current_syntax) == "VARIABLE":
-                if self.validate_variable(current_syntax):
-                    self._results.append("VALID VARIABLE DECLARATION")
-                else:
-                    self._results.append("INVALID VARIABLE DECLARATION")
-
-
-
-        for _ in self._results:
-            print(_)
-
-    def check_type(self, current_syntax):
-        if '(' in current_syntax or ')' in current_syntax:
-            return "FUNCTION"
+    def state_type(self, syntax):
+        if '(' in syntax or ')' in syntax:
+            self._type = "FUNCTION"
         else:
-            return "VARIABLE"
+            self._type = "VARIABLE"
 
-    def validate_variable(self, current_syntax):
-        if current_syntax[-1] != ';':
-            return False
-        cs = current_syntax.replace(';', '')
-        cs = cs.split(',')
-        for _ in range(len(cs)):
-            cs[_] = cs[_].split()
-        
-        validator = VariableSyntaxParser(cs)
-        return(validator.result())
-    
-    def validate_function(self, current_syntax):
-        if current_syntax[-1] != ';':
-            return False
-        cs = current_syntax.replace(';', '')
-        validator = FunctionSyntaxParser(cs)
-        
-        return(validator.result())
-
-
-    def check_variable(self, current_syntax):
-        if current_syntax[-1] != ';':
-            return False
-
-        cs_s = current_syntax.replace(';', '')
-        cs_s = cs_s.split(',')
-
-        temp_cs = cs_s.pop(0).split()
-        if temp_cs[0] in primitive_types:
-            for i in range(1, len(temp_cs)):
-                if temp_cs[i] in primitive_types:
-                    return False
-            temp_cs.pop(0)
-            ns = ' '.join(map(str, temp_cs)).replace(" ", '')
-
-        else:
-            return False
-        print(temp_cs)
-        print(ns)
-
-        for i in range(len(cs_s)):
-            temp_cs = cs_s.pop(0).split()
-            for pt in primitive_types:
-                if pt in temp_cs:
-                    return False
-        
-        #print(ns)
-        
-        
-            """
-            this is a fail.
-            """
-        
-
-
-
-        return True
-
-class FunctionSyntaxParser:
-    def __init__(self, syntax = list(), *args):
-        self._syntax = syntax
-        self._isValid = True
-
-        self._isValid = self.check_type()
-        print()
-
-    def check_type(self):
-        ptype = re.search("\w+", self._syntax)[0] 
+        ptype = re.search("\w+", syntax)[0]
         if ptype not in primitive_types:
-            return False
-
-        syntax = "".join(self._syntax)
-        syntax = syntax.replace(ptype+" ", '')
-        print(syntax)
-
-        return True
-
-
-    def result(self):
-        return self._isValid
-
-    def print_args(self):
-        for _ in self._syntax:
-            print(_)
-
-class VariableSyntaxParser:
-    def __init__(self, syntax = list(), *args):
-        self._syntax = syntax
-        self._isValid = True
-
-        self._isValid = self.check_type()
-        while self._syntax:
-            self._isValid = self.check_variable()
-            self._syntax.pop(0)
-        
-    def check_type(self):
-        # if self._syntax[0].count("=") > 1:
-        #     return False
-
-        # if self._syntax[0].count("=") == 1:
-        #     temp = self._syntax[0].replace(" ", '')
-        #     print(temp)
-
-        if self._syntax[0][0] not in reserved_names:
-            return False
-        self._syntax[0].pop(0)
-
-    def check_variable(self):
-        for i in range(len(self._syntax)):
-            for word in self._syntax[i]:
-                if word in reserved_names:
-                    return False
-            return self.var_naming(self._syntax[i][0])
-
-
-    def var_naming(self, variable):
-        variable = list(variable)
-        nums = []
-        for _ in range(9):
-            nums.append(str(_))
-        if variable[0] in nums:
-            return False
-
-        for _ in variable:
-            if _ not in allowed_var_names:
-                if _ == "=":
-                    break
+            if self._type == "VARIABLE":
+                self.state_invalid()
                 return False
+            else:
+                if ptype != "void":
+                    self.state_invalid()
+                    return False
+        
+        syntax = syntax.replace(ptype, '')
+        self.state_space(syntax)
 
-        return True
+    def state_space(self, syntax):
+        word = re.search("\s+", syntax)[0]
+        if syntax[:len(word)] != word:
+            self.state_invalid()
+            return False
+        
+        syntax = syntax.replace(word, '', 1)
+        self.state_declaration(syntax)
+
+    def state_declaration(self, syntax):
+        if len(syntax) <= 1:
+            temp_syntax = syntax
+        else:
+            temp_syntax = syntax[:-1]
+
+        
+        
+        if temp_syntax[0] in nums:
+            self.state_invalid()
+            return False
+
+        word = re.search("([^\s|,|;|=|(]+)", temp_syntax)[0]
+        for c in word:
+            if c not in allowed_var_names:
+                self.state_invalid()
+                return False
+        syntax = syntax.replace(word, '', 1)
+        
+        self.state_branches(syntax)
+        
+        
+    def state_space_branch(self, syntax):
+        # Expecting a ' ', variable, '(', ')', or ';'
+        word = re.search("\s+", syntax)[0]
+        if syntax[:len(word)] != word:
+            self.state_invalid()
+            return False
+        
+        syntax = syntax.replace(word, '', 1)
+
+        #print(syntax)
+        # do some if else for every branches please
+        self.state_branches(syntax)
+
+    def state_branches(self, syntax):
+        if syntax[0] == ';':
+            syntax = syntax.replace(';', '', 1)
+            if len(syntax) == 0:
+                self.state_valid()
+                return True
+            else:
+                self.state_branches(syntax)
+        if syntax[0] == ' ':
+            self.state_space_branch(syntax)
+
+
+
+    def state_invalid(self):
+        if self._type == "FUNCTION":
+            print(f"INVALID FUNCTION DECLARATION: {self.syn}")
+            #print("INVALID FUNCTION DECLARATION")
+
+        if self._type == "VARIABLE":
+            print(f"INVALID VARIABLE DECLARATION: {self.syn}")
+            #print("INVALID VARIABLE DECLARATION")
     
-    def result(self):
-        return self._isValid
+    def state_valid(self):
+        if self._type == "FUNCTION":
+            print(f"VALID FUNCTION DECLARATION: {self.syn}")
+            #print("VALID FUNCTION DECLARATION")
 
-    def print_args(self):
-        for _ in self._syntax:
-            print(_)
+        if self._type == "VARIABLE":
+            print(f"VALID VARIABLE DECLARATION: {self.syn}")
+            #print("VALID VARIABLE DECLARATION")
 
 
 
 def main():
-    validate = ProcessInterpreter("mpa2.in")
+    #parse = DeterministicFiniteAutomaton()
+    parse = DeterministicFiniteAutomaton("mpa2.in")
 
     
     
