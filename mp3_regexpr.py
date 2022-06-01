@@ -12,7 +12,7 @@ class RegExpr:
         for i in range(len(self._strings)):
             self._strings[i] = self._strings[i].replace('e', '')
             valid = re.search(f"{self._expr}", self._strings[i])
-        
+   
             if valid == None:
                 self._match.append(False)
             else:
@@ -20,6 +20,19 @@ class RegExpr:
                     self._match.append(True)
                 else:
                     self._match.append(False)
+
+
+
+            if self._match[i] == False:
+                valid = re.search(f"{self._expr.replace('*', '+')}", self._strings[i])
+    
+                if valid == None:
+                    self._match[i] = False
+                else:
+                    if valid[0] == self._strings[i]:
+                        self._match[i] = True
+                    else:
+                        self._match[i] = False
 
     def get_match(self):
         return self._match
@@ -49,6 +62,9 @@ def Interpreter() -> dict():
 
 def main():
     data = Interpreter()
+#     data = {
+#        0: ["b*     +          a*", ['a', 'aaaa', 'aaaaaabbbbbb', 'bbbbbbbbb', 'e', 'b']]
+# }
 
     for i in range(len(data)):
         expr = RegExpr(data[i])
