@@ -11,14 +11,16 @@ class RegExpr:
     def test_a_string(self):
         for i in range(len(self._strings)):
             valid = re.search(f"{self._expr}", self._strings[i])
-            if valid == None:
-                self._match.append(False)
+            if self._strings[i] == 'e':
+                self._match.append(True)
             else:
-                if valid[0] == self._strings[i]:
-                    self._match.append(True)
-                else:
+                if valid == None:
                     self._match.append(False)
-
+                else:
+                    if valid[0] == self._strings[i]:
+                        self._match.append(True)
+                    else:
+                        self._match.append(False)
 
     def get_match(self):
         return self._match
