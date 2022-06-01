@@ -3,18 +3,28 @@
 import re
 
 class RegExpr:
-    def __init__(self):
-        self._expr = None
-        self._match = None
+    def __init__(self, case):
+        self._match = []
+        self._expr = case[0].replace('+', '|').replace(' ', '')
+        self._strings = case[1]
     
-    def input_expression(self, expression):
-        self._expr = expression
-    
+    def test_a_string(self):
+        for i in range(len(self._strings)):
+            valid = re.search(f"{self._expr}", self._strings[i])
+            if valid == None:
+                self._match.append(False)
+            else:
+                if valid[0] == self._strings[i]:
+                    self._match.append(True)
+                else:
+                    self._match.append(False)
+
+
     def get_match(self):
         return self._match
 
-    def auto(self, expression):
-        self.input_expression(expression)
+    def auto(self):
+        self.test_a_string()
 
         return self.get_match()
 
@@ -37,8 +47,21 @@ def Interpreter() -> dict():
 
 
 def main():
-    expr = RegExpr
-    Interpreter()
+    #data = Interpreter()
+    data = {
+    0: ["a*b*",   ["aaabbbbbb", "aaaaaa", "bbbbbaaaaa"]],
+    1: ["a + b", ["a", "b"]],
+    2: ["(ab)*(aa + bb)",  ["aa", "e", "abababbb", "ababababaaaaab", "aaaaaabbbbbb", "bbbbbbababab"]]
+}
+    for i in range(len(data)):
+        expr = RegExpr(data[i])
+        results = expr.auto()
+        
+        for i in range(len(results)):
+            if results[i] == True:
+                print("yes")
+            else:
+                print("no")
 
 
 if __name__ == "__main__":

@@ -198,6 +198,19 @@ Example returned dictionary with 3 test cases:
 ```
 The key serves as an index of some sort while the value of the key is a list. The first index of the list always contains the regular expression while the second index are the strings.
 
+The class `RegExpr` initializes with the input of cases taken from the second index of the returned data dictionary from the `Interpreter()`. It sorts the first index as its regular expression while the second index list are the strings.
+
+```python
+self._match = []
+self._expr = case[0].replace('+', '|').replace(' ', '')
+self._strings = case[1]
+```
+- `self._match` - matching result of the iterated string
+- `self._expr` - the input regular expression (first index of the taken list)
+- `self._strings` - input of strings that are to be tested by the regular expression input (second index of the taken list)
+
+The function `test_a_string` iterates through the strings list and use Python's builtin regex module to check if the regular expression input satisfies the string. This then appends the matching result to the class variable `self._match`.
+
 # Sources Used
 - MP2 Primer
 - https://regexr.com/
