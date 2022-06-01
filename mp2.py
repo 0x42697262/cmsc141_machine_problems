@@ -94,29 +94,43 @@ class DFA:
             else:
                 self.state_invalid()
 
-        if state == 4:  # left parenthesis
-            if expectation == '(':    # expect var
-                self.state_left()
+        if state == 4:
+            if expectation == '(':
+                self.state_type_func()
+            else:
+                self.state_invalid()
         
-        if state == 4.1:
+        if state == 4.1:    # types
             if expectation == ',':
-                self.state_left()
+                self.state_type_func()
             elif expectation == ')':
-                self.state_right()
+                self.state_sc_func()
             else:
                 self.state_var_func()
         
-        if state == 4.2:
+        if state == 4.2:    # var
             if expectation == ',':
-                self.state_left()
+                self.state_type_func()
+            elif expectation == '=':
+                self.state_equal_func()
             elif expectation == ')':
-                self.state_right()
+                self.state_sc_func()
+            else:
+                self.state_invalid()
+
+        if state == 4.3:    # equal
+            if expectation == ',':
+                self.state_type_func()
+            elif expectation == ')':
+                self.state_sc_func()
             else:
                 self.state_invalid()
         
         if state == 5:
             if expectation == ';':
-                self.state_right()
+                pass
+            else:
+                self.state_type()
 
     
     def state_type(self):
@@ -124,7 +138,12 @@ class DFA:
         self.func_names = []
         self.var_type = None
 
-        word = self._syntax.pop(0)
+        word = self._syntax.pop(0) # empty list index error
+        if word[0] == ';':
+            self.transitions(2, 2)
+            return True
+
+
         if word not in primitive_types:
             if self._type == "VARIABLE":
                 self.transitions(0, -1)
@@ -180,7 +199,6 @@ class DFA:
     def state_semicolon(self):
         if len(self._syntax):
             word = self._syntax.pop(0)
-            print(word, len(self._syntax), self._syntax)
             if word == ';':
                 self.transitions(2, 1)
 
@@ -235,88 +253,130 @@ class DFA:
             self.transitions(3, -1)
             return False
 
-    def state_left(self):
+    def state_type_func(self):
         if len(self._syntax):
-
             word = self._syntax.pop(0)
 
-            if word in reserved_names:
-                if len(self._syntax):
-                    word = self._syntax.pop(0)
-                    #print(word, self._syntax)
-                    if word == ',':
-                        self.transitions(4.1, ',')
-                    elif word == ')':
-                        self.transitions(4.1, ')')
-                    else:
-                        self._syntax.insert(0, word)
-                        self.transitions(4.1, word)
-                       
-                else:
-                    self.transitions(4, -1)
-                    return False
-
-
-            elif word == ")":
-                self.transitions(5, ';')
-
-            else:
-                self.transitions(4, -1)
+            if word not in reserved_names:
+                if word == ')':
+                    self.transitions(4.1, word)
+                    return True
+                self.transitions(4.1, -1)
                 return False
 
-        else:
-            self.transitions(4, -1)
-            return False
+            if len(self._syntax):
+                t = self._syntax.pop(0)
+                if t == ',' or t == ')' or t == '(':
+                    pass
+                else:
+                    self._syntax.insert(0, t)
+            
+                self.transitions(4.1, t)
+                return True
+        
+        self.transitions(4.1, -1)
+        return False
 
-    def state_var_func(self): 
+    def state_var_func(self):
         if len(self._syntax):
             vars = []
             word = self._syntax.pop(0)
             if word[0] in str(list(range(9))):
-                self.transitions(1, -1)
+                self.transitions(4.2, -1)
                 return False
 
             if word in primitive_types or word in reserved_names or word in self.var_names:
-                self.transitions(1, -1)
+                self.transitions(4.2, -1)
                 return False
 
             for c in word:
                 if c not in allowed_var_names:
-                    self.transitions(1, -1)
+                    self.transitions(4.2, -1)
                     return False
 
             vars.insert(0, word)
-            
-            
-            if len(self._syntax):
-                self.transitions(4.1, self._syntax.pop(0))
-            else:
-                self.transitions(4.1, -1)
-                return False    
-            
-        else:
-            self.transitions(4.2, -1)
-            return False
 
-    def state_right(self):
+            if len(self._syntax):
+                self.transitions(4.2, self._syntax.pop(0))
+            else:
+                self.transitions(4.2, -1)
+                return False    
+
+            return True
+        
+
+        self.transitions(4.2, -1)
+        return False
+
+    def state_sc_func(self):
         if len(self._syntax):
             word = self._syntax.pop(0)
-            #print(word, len(self._syntax), self._syntax)
             if word == ';':
-                self.transitions(5, ';')
+                self.sc_checker()
+                if len(self._syntax) == 0:
+                    self.transitions(2, 0)
+                else:
+                    self.transitions(5, 0)            
+                return True
             elif word == ',':
-                self.transitions(1, ',')
-            else:
-                self.transitions(5, -1)        
-                return False
-          
-        else:
-            self.transitions(2, 0)
-            return True
+                self.transitions(0, 0)
+                return True
+
+
+        self.transitions(5, -1)
+        return False
+
+    def sc_checker(self):
+        while self._syntax:
+            word = self._syntax.pop(0)
+            if word != ';':
+                self._syntax.insert(0, word)
+                break
 
 # int function(int)int a = 10;
 # int area(int a int b);
 # int perimeter(int,int abc_cbn)
+    def state_equal_func(self):
+        if len(self._syntax):
+            word = self._syntax.pop(0)
+            if self.var_type == "int" or self.var_type == "double" or self.var_type == "float" :
+                valid = re.search("[+-]?([0-9]*[.])?[0-9]+", word)
+                if valid != None: 
+                    valid = valid[0]
+
+                if word == valid or word in self.var_names:
+                    if len(self._syntax):
+                        self.transitions(4.3, self._syntax.pop(0))
+                    else:
+                        self.transitions(4.3, -1)
+                        return False
+                elif word.count("'") == 2  or word in self.var_names:
+                    self.transitions(4.3, self._syntax.pop(0))
+
+                else:
+                    self.transitions(3, -1)
+                    return False
+            elif self.var_type == "char":
+                valid = re.search("[+-]?([0-9]*[.])?[0-9]+", word)
+                if valid != None: 
+                    valid = valid[0]
+
+                if word.count("'") == 2  or word in self.var_names:
+                    self.transitions(3, self._syntax.pop(0))
+                
+                elif word == valid or word in self.var_names:
+                    if len(self._syntax):
+                        self.transitions(4.3, self._syntax.pop(0))
+                    else:
+                        self.transitions(4.3, -1)
+                        return False
+                else:
+                    self.transitions(4.3, -1)
+                    return False
+
+        else:
+            self.transitions(4.3, -1)
+            return False
 
         
     def state_valid(self):

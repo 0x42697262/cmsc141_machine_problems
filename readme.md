@@ -131,51 +131,12 @@ The MP will stick with primitive types. The types are:
 - float
 - double
 
-## Code Execution Flow
-1. **ProcessInterpreter**
-2. **FileHandler**
-3. **ProcessInterpreter**.validate()
-
-## ProcessInterpreter Class
-**Requires 1 positional argument*
-
-`self._file` - input file data
-
-`self._cases` - test cases amount
-
-`self._instructions` - line syntaxes acting as a stack
-
-`self._results` - list of valid/invalid functions/variables
-
-**Read input:**
-```python
-PIV = ProcessInterpreter("mpa2.in")
-```
-
-**Functions:**
-
-Checks if the declaration is a *function* or *variable*.
-```python
-def check_type(self, current_syntax)
-```
-
-First checks for primitive types and counts them. If the types are not equal to `1` then it is an invalid variable declaration.
-```python
-def check_variable(self, current_syntax)
-```
+## messy code, no documentation :D
 
 
 
-## FileHander Class
-**Requires 1 positional argument*
-
-**Read a file:**
-```python
-file = FileHandler("mpa2.in")
-file.start_reading()
-```
-
-## Sources Used
+# Sources Used
+- MP2 Primer
 - https://regexr.com/
 - https://stackoverflow.com/questions/38579725/return-string-with-first-match-for-a-regex-handling-case-where-there-is-no-matc
 - https://www.youtube.com/watch?v=rsxjCkvYoAw
