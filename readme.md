@@ -209,7 +209,47 @@ self._strings = case[1]
 - `self._expr` - the input regular expression (first index of the taken list)
 - `self._strings` - input of strings that are to be tested by the regular expression input (second index of the taken list)
 
-The function `test_a_string` iterates through the strings list and use Python's builtin regex module to check if the regular expression input satisfies the string. This then appends the matching result to the class variable `self._match`.
+Unedited Logic Breakdown, good luck!:
+```python
+# first logic solution
+>>> self._orig_expr
+'a + b'
+{
+    0: 'a',
+    1: 'b'
+}
+
+# second logic solution
+>>> self._orig_expr
+'a(a + b) + b(a + b)'
+    a(a+b)
+        a(a)
+        a(b)
+    b(a+b)
+        b(a)
+        b(b)
+
+    (a), (b) -> a(a), a(b)
+    (a), (b) -> b(a), b(b)
+'a*((b + e)a + a(b + e))a*'
+Level=2
+    b + e       : 'a*(b + b)a*'
+                : 'a*(b + e)a*'
+    b + e       : 'a*(e + b)a*'
+                : 'a*(e + e)a*'
+Level=1
+    a*(b + b)a*     : 'a*(b)a*'
+                    : 'a*(b)a*'
+    a*(b + e)a*     : 'a*(b)a*'
+                    : 'a*(e)a*'
+    a*(e + b)a*     : 'a*(e)a*'
+                    : 'a*(b)a*'
+    a*(e + e)a*     : 'a*(e)a*'
+                    : 'a*(e)a*'
+# \(([^()]+)\)
+# a*|b* -> [a]+|[b]+
+(?!.)
+```
 
 # Sources Used
 - MP2 Primer
@@ -218,3 +258,4 @@ The function `test_a_string` iterates through the strings list and use Python's 
 - https://www.youtube.com/watch?v=rsxjCkvYoAw
 - https://www.youtube.com/watch?v=7nENzjQTxCc
 - https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
+- https://stackoverflow.com/questions/17779744/regular-expression-to-get-a-string-between-parentheses-in-javascript
