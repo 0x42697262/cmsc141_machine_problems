@@ -133,7 +133,8 @@ The MP will stick with primitive types. The types are:
 
 ## messy code, no documentation :D
 
-
+# Machine Problem 3: Paparazzi, Grammar Nazi Version 2.0
+Basically the same as MP2
 
 # Sources Used
 - MP2 Primer
